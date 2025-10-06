@@ -1,0 +1,12 @@
+Summary:
+- Multiple hosts are making suspicious requests. Specifically, host 192.168.1.102 is requesting '/admin' page and host 192.168.1.50 is requesting '/secret' page which could be an attempt to gain unauthorized access.
+
+Recommendations:
+1. Investigate network traffic originating from 192.168.1.102 and 192.168.1.50. [Priority: High]
+2. Monitor authentication logs for failed login attempts associated with these IP addresses. [Priority: Medium]
+3. Review the access control lists and permissions for the '/admin' and '/secret' resources. [Priority: Low]
+
+Evidence to collect next:
+- Full web server access logs for the relevant time period.
+- Network traffic captures (PCAP) for 192.168.1.102 and 192.168.1.50.
+- Authentication logs from the web server and any associated systems.
