@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 from ai.genai import setup_client, summarize_log
 from parser.log_parser import delete_project, parse_logs, read_log, save_log, take_input, log_detection
-from project_manager import ProjectManager
+from database import ProjectDatabase  # updated database class
 
 load_dotenv()
 
@@ -24,14 +24,14 @@ def main():
 
     # Parse CLI arguments
     args = take_input()
+
+    # Delete project if requested
     if args.delete:
         delete_project(args.delete)
         sys.exit(0)
 
-
-    # 🧱 Initialize Project
-    pm = ProjectManager()
-    db = pm.create_project(args.project)  # Create/get project DB
+    # 🧱 Initialize Project DB
+    db = ProjectDatabase(args.project)
 
     # 🧾 Read log file
     log_content = read_log(args.path)
@@ -43,23 +43,24 @@ def main():
 
     # 2️⃣ Parse the log file
     parsed_logs = parse_logs(args.path, ai_regex)
-    print(f"📄 Parsed {len(parsed_logs)} log entries")
 
-    # 🧠 Save parsed logs into the project's TinyDB (deduplicated)
-    db.bulk_insert(parsed_logs)
-
-    # ✅ Ensure data is flushed to disk
-    db.db.close()
-
-    # 3️⃣ Print parsed logs (optional for debugging)
-    log_json_str = json.dumps(parsed_logs, indent=2)
-    # print("\nParsed Logs:\n", log_json_str)
+    # 3️⃣ Identify important logs (example: ERROR, WARNING, CRITICAL)
+    important_logs = [log for log in parsed_logs if log.get("level") in ["ERROR", "WARNING", "CRITICAL"]]
 
     # 4️⃣ Summarize logs using the LLM
     print("\n🧩 Summarizing log...\n")
+    log_json_str = json.dumps(parsed_logs, indent=2)
     summary = summarize_log(summary_client, model_name, log_json_str)
 
-    # 5️⃣ Save summary if requested
+    # 5️⃣ Create or update project in structured format
+    db.create_or_update_project(
+        log_type=log_type,
+        logs=parsed_logs,
+        important_logs=important_logs,
+        summary=summary
+    )
+
+    # 6️⃣ Save summary to file if requested
     if args.save:
         save_log(args, summary)
         print(f"💾 Summary saved in {args.format} format.")

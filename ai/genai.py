@@ -29,7 +29,7 @@ def summarize_log(sum_client, model_name, log_content):
         if event.candidates:
             for part in event.candidates[0].content.parts:
                 if hasattr(part, "text") and part.text:
-                    print(part.text, end="", flush=True)
+                    # print(part.text, end="", flush=True)
                     summary += part.text
     return summary
 
