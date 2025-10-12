@@ -1,5 +1,0 @@
-Oct 3 12:05:22 server sshd[1234]: Failed password for root from 192.168.1.50 port 54522 ssh2
-Oct 3 12:05:25 server sshd[1235]: Failed password for root from 192.168.1.50 port 54523 ssh2
-Oct 3 12:05:30 server sshd[1236]: Accepted password for admin from 192.168.1.51 port 54524 ssh2
-Oct 3 12:10:12 server sudo:   john : TTY=pts/1 ; PWD=/home/john ; USER=root ; COMMAND=/bin/ls
-Oct 3 12:12:15 server cron[5678]: (root) CMD (/usr/bin/backup.sh)
