@@ -9,3 +9,5 @@ wheels/
 # Virtual environments
 .venv
 .env
+projects
+log_files

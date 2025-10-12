@@ -1,0 +1,12 @@
+Summary:
+- Multiple hosts are making HTTP requests. Of particular concern is host 192.168.1.50, which requested the '/secret' resource. Host 192.168.1.102 requested the '/admin' resource, which could indicate privilege escalation attempts.
+
+Recommendations:
+1. Investigate host 192.168.1.50 for potential unauthorized access, focusing on the process with PID 404. [Priority: High]
+2. Monitor host 192.168.1.102 for further attempts to access privileged resources. [Priority: Medium]
+3. Review access controls on the '/secret' and '/admin' resources to ensure proper restrictions. [Priority: Low]
+
+Evidence to collect next:
+- Full network traffic capture involving 192.168.1.50 and 192.168.1.102
+- Authentication logs for the web server around the time of the requests
+- System logs from 192.168.1.50 and 192.168.1.102, focusing on process execution

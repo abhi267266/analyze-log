@@ -1,16 +1,69 @@
 import argparse
+import json
 import os
 from pathlib import Path
+from google.genai import types
 import re
 import sys
+from ai.system_prompt import log_detection_prompt
+import shutil
+
+def delete_project(project_name: str):
+    project_path = Path("projects") / project_name
+    if project_path.exists() and project_path.is_dir():
+        shutil.rmtree(project_path)
+        print(f"✅ Project '{project_name}' has been deleted.")
+    else:
+        print(f"⚠️ Project '{project_name}' does not exist.")
+
 
 def take_input():
-    parser = argparse.ArgumentParser(description="Blue team log analyzer CLI")
-    parser.add_argument("path", help="Path to the log file")
-    parser.add_argument("--save", action="store_true", help="Save the summarized output")
-    parser.add_argument("--format", choices=["txt", "json", "csv"], default="txt", help="Output format")
+    parser = argparse.ArgumentParser(description="Blue Team Log Analyzer CLI")
+
+    # Optional positional argument → log file path
+    parser.add_argument(
+        "path",
+        nargs="?",
+        default=None,
+        help="Path to the log file"
+    )
+
+    # Optional flags
+    parser.add_argument(
+        "--delete",
+        "-d",
+        type=str,
+        help="Delete a project by name"
+    )
+
+    parser.add_argument(
+        "--project",
+        "-p",
+        type=str,
+        help="Project name to associate logs with (creates it if not exists)"
+    )
+
+    parser.add_argument(
+        "--save",
+        action="store_true",
+        help="Save the summarized output"
+    )
+
+    parser.add_argument(
+        "--format",
+        choices=["txt", "json", "csv"],
+        default="txt",
+        help="Output format"
+    )
+
     args = parser.parse_args()
+
+    # Validation
+    if not args.delete and (not args.path or not args.project):
+        parser.error("The 'path' and '--project' arguments are required unless using --delete.")
+
     return args
+
 
 
 def read_log(path):
@@ -67,5 +120,59 @@ def parse_logs(log_file_path, regex_pattern):
                 parsed_logs.append({"unparsed": line})
 
     return parsed_logs
+
+
+def log_detection(log_client, model_name, lines):
+    """
+    Detects log type and generates a regex to parse log entries.
+    
+    Args:
+        log_client: Gemini client for log detection
+        model_name: model to use
+        lines: first N lines of the log file (string)
+    
+    Returns:
+        log_type (str), regex_pattern (str)
+    """
+
+    system_prompt = log_detection_prompt()
+
+    # Prepare user message
+    messages = [
+        types.Content(
+            role="user",
+            parts=[types.Part(text=f"Identify the log type and generate a parsing regex for these lines:\n{lines}")]
+        )
+    ]
+
+    # Send to Gemini
+    stream = log_client.models.generate_content_stream(
+        model=model_name,
+        contents=messages,
+        config=types.GenerateContentConfig(system_instruction=system_prompt),
+    )
+
+    # Collect the response from the stream
+    response_text = ""
+    for event in stream:
+        if event.candidates:
+            for part in event.candidates[0].content.parts:
+                if hasattr(part, "text") and part.text:
+                    response_text += part.text
+
+    # Remove triple backticks or other code fences
+    cleaned_response = re.sub(r"^```json\s*|```$", "", response_text.strip(), flags=re.MULTILINE)
+
+    try:
+        result = json.loads(cleaned_response)
+        log_type = result.get("log_type")
+        regex = result.get("regex")
+        return log_type, regex
+    except json.JSONDecodeError:
+        print("Failed to parse AI response:", cleaned_response)
+        return None, None
+
+
+
 
 
