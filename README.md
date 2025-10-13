@@ -4,7 +4,7 @@
 
   <h1>🧾 Log Analysis Project</h1>
 
-  <p>A modular and intelligent <strong>Log Analysis System</strong> built for MCA coursework — designed to <strong>parse, store, and summarize</strong> logs from multiple sources.  
+  <p>A modular and intelligent <strong>Log Analysis System</strong> built for coursework — designed to <strong>parse, store, and summarize</strong> logs from multiple sources.  
   This project blends <strong>Python</strong>, <strong>TinyDB</strong> for lightweight storage, and the <strong>Gemini API (LLM)</strong> for automated insights.</p>
 
   <h2>🚀 Overview</h2>
