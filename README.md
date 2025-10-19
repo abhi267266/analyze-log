@@ -1,17 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>🧾 Blue Team Log Analyzer</title>
-  <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; background: #f9f9f9; color: #333; }
-    h1, h2 { color: #2c3e50; }
-    code { background: #eee; padding: 2px 6px; border-radius: 4px; }
-    pre { background: #eee; padding: 10px; border-radius: 6px; overflow-x: auto; }
-    ul { margin-bottom: 15px; }
-    li { margin-bottom: 8px; }
-  </style>
-</head>
 <body>
 
   <h1>🧾 Blue Team Log Analyzer</h1>
