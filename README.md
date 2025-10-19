@@ -31,7 +31,7 @@
   <ul>
     <li>Python 3.10+</li>
     <li>pip packages:
-      <pre><code>pip install python-dotenv tinydb</code></pre>
+      <pre><code>pip install -r requirements.txt</code></pre>
     </li>
     <li>Gemini API Key (set in <code>.env</code>)</li>
   </ul>
